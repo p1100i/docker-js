@@ -1,10 +1,18 @@
 #!/bin/bash
 
+echo "* entrypoint.sh START, ls -la /"
+
+ls -la /
+
 if [ -z "$1" ]; then
+  echo "* no project directory given, using find to determine"
+
   not_owned="$(find / -nouser -type d)"
 
+  #
   # This expands the variable by spaces and applies them as current parameters,
   # so $1 will be set to the first found entry of the find above.
+  #
   set -- $not_owned
 fi
 
@@ -28,7 +36,9 @@ echo "* creating user: ${PROJECT_USER}, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}
 
 useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m "${PROJECT_USER}" -s /bin/bash
 
+#
 # Use this for debugging!
 # su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; /bin/bash"
+#
 
 su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; npm install; npm test"
