@@ -14,19 +14,21 @@ echo "* set PROJECT_DIR: ${PROJECT_DIR}"
 
 PROJECT_UID="$(stat -c %u "${PROJECT_DIR}")"
 PROJECT_GID="$(stat -c %g "${PROJECT_DIR}")"
+PROJECT_USER=dockeruser
+PROJECT_GROUP=dockerusers
 
 if grep -q $PROJECT_GID /etc/group; then
   echo "* group exists (skipping group creation)"
 else
-  echo "* group does not exist, creating group: dockerusers, gid: ${PROJECT_GID}"
-  groupadd --gid "${PROJECT_GID}" users
+  echo "* group does not exist, creating group: ${PROJECT_GROUP}, gid: ${PROJECT_GID}"
+  groupadd --gid "${PROJECT_GID}" ${PROJECT_GROUP}
 fi
 
-echo "* creating user: dockeruser, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
+echo "* creating user: ${PROJECT_USER}, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
 
-useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m dockeruser -s /bin/bash
+useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m "${PROJECT_USER}" -s /bin/bash
 
 # Use this for debugging!
-# su - user -c "cd ${PROJECT_DIR}; /bin/bash"
+# su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; /bin/bash"
 
-su - user -c "cd ${PROJECT_DIR}; npm install; npm test"
+su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; npm install; npm test"
