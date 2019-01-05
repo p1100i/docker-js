@@ -6,7 +6,7 @@ echo "* entrypoint.sh START, ls -la /"
 
 ls -la /
 
-if [ -n "${CI_PROJECT_DIR}" ]; then
+if [ -n "${CI_PROJECT_DIR:-}" ]; then
   PROJECT_DIR="${CI_PROJECT_DIR}"
 else
   echo "* CI_PROJECT_DIR is falsy, using find to determine PROJECT_DIR"
