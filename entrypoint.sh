@@ -34,9 +34,26 @@ else
   groupadd --gid "${PROJECT_GID}" ${PROJECT_GROUP}
 fi
 
+if [ "${PROJECT_UID}" = "0" ]; then
+  #
+  # Avoid using the root user for build/test.
+  #
+  PROJECT_UID=1234
+  chown_needed=1
+fi
+
 echo "* creating user: ${PROJECT_USER}, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
 
 useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m "${PROJECT_USER}" -s /bin/bash
+
+if [ -n "${chown_needed}" ]; then
+  #
+  # If the root user owned the PROJECT_DIR before, change it for the dockeruser."
+  #
+  echo "* chown recursively ${PROJECT_DIR} with uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
+
+  chown -Rh "${PROJECT_USER}:${PROJECT_GROUP}" "${PROJECT_DIR}"
+fi
 
 #
 # Use this for debugging!
