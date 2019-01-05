@@ -1,6 +1,17 @@
 FROM archlinux/base
 
-RUN pacman -Syyu --noconfirm
-RUN pacman -S --noconfirm nodejs chromium
+RUN set -xe \
+  && pacman -Syyu --noconfirm
 
-ENTRYPOINT ["/mnt/project/docker-entry.sh"]
+RUN set -xe \
+  && pacman -S --noconfirm  \
+    chromium                \
+    git                     \
+    nodejs                  \
+    npm                     \
+    sudo                    \
+    vim
+
+COPY ./entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
