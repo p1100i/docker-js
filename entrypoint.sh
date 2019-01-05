@@ -2,9 +2,7 @@
 
 set -eufo pipefail
 
-echo "* entrypoint.sh START, ls -la /"
-
-ls -la /
+echo "* entrypoint.sh"
 
 if [ -n "${CI_PROJECT_DIR:-}" ]; then
   project_dir="${CI_PROJECT_DIR}"
