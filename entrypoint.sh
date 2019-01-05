@@ -4,9 +4,10 @@ echo "* entrypoint.sh START, ls -la /"
 
 ls -la /
 
-echo "* CI_PROJECT_PATH: ${CI_PROJECT_PATH}"
 
-if [ -z "${CI_PROJECT_PATH}" ]; then
+if [ -n "${CI_PROJECT_PATH}" ]; then
+  PROJECT_PATH="${CI_PROJECT_PATH}"
+else
   echo "* CI_PROJECT_PATH is falsy, using find to determine PROJECT_PATH"
 
   not_owned="$(find / -nouser -type d)"
@@ -16,9 +17,9 @@ if [ -z "${CI_PROJECT_PATH}" ]; then
   # so $1 will be set to the first found entry of the find above.
   #
   set -- $not_owned
-fi
 
-PROJECT_PATH="$1"
+  PROJECT_PATH="$1"
+fi
 
 echo "* using PROJECT_PATH: ${PROJECT_PATH}"
 
