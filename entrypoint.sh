@@ -4,8 +4,10 @@ echo "* entrypoint.sh START, ls -la /"
 
 ls -la /
 
-if [ -z "$1" ]; then
-  echo "* no project directory given, using find to determine"
+echo "* CI_PROJECT_PATH: ${CI_PROJECT_PATH}"
+
+if [ -z "${CI_PROJECT_PATH}" ]; then
+  echo "* CI_PROJECT_PATH is falsy, using find to determine PROJECT_PATH"
 
   not_owned="$(find / -nouser -type d)"
 
@@ -16,12 +18,12 @@ if [ -z "$1" ]; then
   set -- $not_owned
 fi
 
-PROJECT_DIR="$1"
+PROJECT_PATH="$1"
 
-echo "* set PROJECT_DIR: ${PROJECT_DIR}"
+echo "* using PROJECT_PATH: ${PROJECT_PATH}"
 
-PROJECT_UID="$(stat -c %u "${PROJECT_DIR}")"
-PROJECT_GID="$(stat -c %g "${PROJECT_DIR}")"
+PROJECT_UID="$(stat -c %u "${PROJECT_PATH}")"
+PROJECT_GID="$(stat -c %g "${PROJECT_PATH}")"
 PROJECT_USER=dockeruser
 PROJECT_GROUP=dockerusers
 
@@ -38,7 +40,7 @@ useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m "${PROJECT_USER}" -s /b
 
 #
 # Use this for debugging!
-# su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; /bin/bash"
+# su - "${PROJECT_USER}" -c "cd ${PROJECT_PATH}; /bin/bash"
 #
 
-su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; npm install; npm test"
+su - "${PROJECT_USER}" -c "cd ${PROJECT_PATH}; npm install; npm test"
