@@ -15,9 +15,16 @@ echo "* set PROJECT_DIR: ${PROJECT_DIR}"
 PROJECT_UID="$(stat -c %u "${PROJECT_DIR}")"
 PROJECT_GID="$(stat -c %g "${PROJECT_DIR}")"
 
-echo "* adding executing user with uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
+if grep -q $PROJECT_GID /etc/group; then
+  echo "* group exists (skipping group creation)"
+else
+  echo "* group does not exist, creating group: dockerusers, gid: ${PROJECT_GID}"
+  groupadd --gid "${PROJECT_GID}" users
+fi
 
-useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m user -s /bin/bash
+echo "* creating user: dockeruser, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
+
+useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m dockeruser -s /bin/bash
 
 # Use this for debugging!
 # su - user -c "cd ${PROJECT_DIR}; /bin/bash"
