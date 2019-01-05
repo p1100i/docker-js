@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eufo pipefail
+
 echo "* entrypoint.sh START, ls -la /"
 
 ls -la /
@@ -52,7 +54,7 @@ if [ -n "${chown_needed}" ]; then
   #
   echo "* chown recursively ${PROJECT_DIR} with uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
 
-  chown -Rh "${PROJECT_USER}:${PROJECT_GROUP}" "${PROJECT_DIR}"
+  chown -Rh ${PROJECT_USER}:${PROJECT_GROUP} "${PROJECT_DIR}"
 fi
 
 #
