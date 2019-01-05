@@ -1,4 +1,4 @@
-docker-base
-===========
+docker-js
+=========
 
-Personal docker base image for projects.
+Personal docker image for JS projects.
