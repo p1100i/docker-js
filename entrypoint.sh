@@ -29,19 +29,20 @@ PROJECT_GID="$(stat -c %g "${PROJECT_DIR}")"
 PROJECT_USER=dockeruser
 PROJECT_GROUP=dockerusers
 
-if grep -q $PROJECT_GID /etc/group; then
-  echo "* group exists (skipping group creation)"
-else
-  echo "* group does not exist, creating group: ${PROJECT_GROUP}, gid: ${PROJECT_GID}"
-  groupadd --gid "${PROJECT_GID}" ${PROJECT_GROUP}
-fi
-
 if [ "${PROJECT_UID}" = "0" ]; then
   #
   # Avoid using the root user for build/test.
   #
   PROJECT_UID=1234
+  PROJECT_GID=1234
   chown_needed=1
+fi
+
+if grep -q "${PROJECT_GID}" /etc/group; then
+  echo "* group exists (skipping group creation)"
+else
+  echo "* group does not exist, creating group: ${PROJECT_GROUP}, gid: ${PROJECT_GID}"
+  groupadd --gid "${PROJECT_GID}" ${PROJECT_GROUP}
 fi
 
 echo "* creating user: ${PROJECT_USER}, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
