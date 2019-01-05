@@ -4,17 +4,21 @@ echo "* entrypoint.sh START, ls -la /"
 
 ls -la /
 
-not_owned="$(find / -nouser -type d)"
+if [ -z "$1" ]; then
+  echo "* no project directory given, using find to determine"
 
-#
-# This expands the variable by spaces and applies them as current parameters,
-# so $1 will be set to the first found entry of the find above.
-#
-set -- $not_owned
+  not_owned="$(find / -nouser -type d)"
+
+  #
+  # This expands the variable by spaces and applies them as current parameters,
+  # so $1 will be set to the first found entry of the find above.
+  #
+  set -- $not_owned
+fi
 
 PROJECT_DIR="$1"
 
-echo "* by using find, PROJECT_DIR set to: ${PROJECT_DIR}"
+echo "* set PROJECT_DIR: ${PROJECT_DIR}"
 
 PROJECT_UID="$(stat -c %u "${PROJECT_DIR}")"
 PROJECT_GID="$(stat -c %g "${PROJECT_DIR}")"
