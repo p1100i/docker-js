@@ -7,9 +7,9 @@ echo "* entrypoint.sh START, ls -la /"
 ls -la /
 
 if [ -n "${CI_PROJECT_DIR:-}" ]; then
-  PROJECT_DIR="${CI_PROJECT_DIR}"
+  project_dir="${CI_PROJECT_DIR}"
 else
-  echo "* CI_PROJECT_DIR is falsy, using find to determine PROJECT_DIR"
+  echo "* CI_PROJECT_DIR is falsy, using find to determine project_dir"
 
   not_owned="$(find / -nouser -type d)"
 
@@ -19,48 +19,49 @@ else
   #
   set -- $not_owned
 
-  PROJECT_DIR="$1"
+  project_dir="$1"
 fi
 
-echo "* using PROJECT_DIR: ${PROJECT_DIR}"
+echo "* using project_dir: ${project_dir}"
 
-PROJECT_UID="$(stat -c %u "${PROJECT_DIR}")"
-PROJECT_GID="$(stat -c %g "${PROJECT_DIR}")"
-PROJECT_USER=dockeruser
-PROJECT_GROUP=dockerusers
+project_uid="$(stat -c %u "${project_dir}")"
+project_gid="$(stat -c %g "${project_dir}")"
+project_user=dockeruser
+project_group=dockerusers
 
-if [ "${PROJECT_UID}" = "0" ]; then
+if [ "${project_uid}" = "0" ]; then
   #
   # Avoid using the root user for build/test.
   #
-  PROJECT_UID=1234
-  PROJECT_GID=1234
+  project_uid=1234
+  project_gid=1234
   chown_needed=1
 fi
 
-if grep -q "${PROJECT_GID}" /etc/group; then
+if grep -q "${project_gid}" /etc/group; then
   echo "* group exists (skipping group creation)"
 else
-  echo "* group does not exist, creating group: ${PROJECT_GROUP}, gid: ${PROJECT_GID}"
-  groupadd --gid "${PROJECT_GID}" ${PROJECT_GROUP}
+  echo "* group does not exist, creating group: ${project_group}, gid: ${project_gid}"
+
+  groupadd --gid "${project_gid}" ${project_group}
 fi
 
-echo "* creating user: ${PROJECT_USER}, uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
+echo "* creating user: ${project_user}, uid: ${project_uid}, gid: ${project_gid}"
 
-useradd --uid "${PROJECT_UID}" --gid "${PROJECT_GID}" -m "${PROJECT_USER}" -s /bin/bash
+useradd --uid "${project_uid}" --gid "${project_gid}" -m "${project_user}" -s /bin/bash
 
-if [ -n "${chown_needed}" ]; then
+if [ -n "${chown_needed:-}" ]; then
   #
-  # If the root user owned the PROJECT_DIR before, change it for the dockeruser."
+  # If the root user owned the project_dir before, change it for the dockeruser."
   #
-  echo "* chown recursively ${PROJECT_DIR} with uid: ${PROJECT_UID}, gid: ${PROJECT_GID}"
+  echo "* chown recursively ${project_dir} with uid: ${project_uid}, gid: ${project_gid}"
 
-  chown -Rh ${PROJECT_USER}:${PROJECT_GROUP} "${PROJECT_DIR}"
+  chown -Rh ${project_user}:${project_group} "${project_dir}"
 fi
 
 #
 # Use this for debugging!
-# su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; /bin/bash"
+# su - "${project_user}" -c "cd ${project_dir}; /bin/bash"
 #
 
-su - "${PROJECT_USER}" -c "cd ${PROJECT_DIR}; npm install; npm test"
+su - "${project_user}" -c "cd ${project_dir}; npm install; npm test"
