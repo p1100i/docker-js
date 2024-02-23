@@ -65,8 +65,17 @@ if [ -n "${chown_needed:-}" ]; then
 fi
 
 #
-# Use this for debugging!
+# Use this for debugging this docker image:
+#
 # su - "${project_user}" -c "cd ${project_dir}; /bin/bash"
 #
 
-su - "${project_user}" -c "cd ${project_dir}; npm install; npm test"
+project_command="cd ${project_dir};"
+
+if [ -z "${SKIP_NPM_INSTALL:-}" ]; then
+  project_command="${project_command} npm install;"
+fi
+
+project_command="${project_command} npm test;"
+
+su - "${project_user}" -c "${project_command}"
